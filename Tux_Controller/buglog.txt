@@ -1,0 +1,39 @@
+1) drawing vertical line: vertical line in a wrong place
+- issue: the vertical line does not appear in the right place.
+            The upper part of the vertical line appears in a little left to 
+            where it is supposed to appear. 
+- How I fixed the issue: Since it appears in a wrong place, I thought the part where
+                            copying image to the build buffer could be wrong. More specifically,
+                            the index of addr could be wrong. 
+                            It turned out that I interpreted the same code in drawing horizontal line in
+                            an incorrect way. I fixed addr[p_off*SCROLL_SIZE] to 
+                            addr[p_off * SCROLL_SIZE + i*SCROLL_X_WIDTH], and it worked.
+
+2) Status bar appears both at the top and bottom
+- set the starting address (set target_img to 1440 in set_modex)
+
+3) The character can go below status bar
+-  set SCROLL_Y_DIM to IMAGE_Y_DIM-18 to change the scrolling region of the screen.
+
+4) a part of the first char is shown in the end of the status bar
+- the problem was that I didn't consider the actual plane of the first pixel in the view window
+    but always started from plane 0
+- passed p_off from show_statusbar and use that while populating the buffer
+
+
+5) tux button doesn't seem to work properly when testing with input.c
+- the problem was that I was not copying it to user properly. I was passing a wrong type of arg and 
+    casting the arg in a wrong way.
+- I changed the type of arg from unsigned long* to unsigned long
+- I changed (int*)arg to (void*) for casting        FIX THIS
+
+6) Can't quit the game with backquote after implementing tux controller
+- changed pthread_join(tuxThread, ...) to pthread_cancel(tuxThread)
+    pthread_join waits until the thread ends
+
+7) trail does not disappear
+- did not redraw the background after the player leaves
+
+8) player doesn't change its color after it changes once
+- don't use ticks
+- used diff_time instead
